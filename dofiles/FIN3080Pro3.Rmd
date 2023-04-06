@@ -1,0 +1,319 @@
+---
+title: "Assignment 1 "
+author: "YOUR NAME"
+date: "DATE"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+  word_document: default
+classoption: hyperref,
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+```{r}
+library(readxl)
+library(stringr)
+library(dplyr)
+```
+
+```{r}
+DAI_Raw<-read_excel("初步筛选.xlsx")
+FIN_Raw<-read_excel("金融股票代码.xlsx")
+FIN_Raw<-FIN_Raw[-(1:2),]
+FIN_Raw$Stkcd<-as.numeric(FIN_Raw$Stkcd)
+Cancelled<-merge(DAI_Raw,FIN_Raw,by.x = 'Stock Code',by.y = 'Stkcd')
+```
+
+```{r}
+DAI_New<-DAI_Raw
+for (i in Cancelled$`Stock Code`) {
+  DAI_New<-with(DAI_New,DAI_New[DAI_New$`Stock Code`!=i,])
+}
+```
+
+```{r}
+DAI_New$`Stock Code`<-as.character(DAI_New$`Stock Code`)
+DAI_New$`Stock Code`<-str_pad(DAI_New$`Stock Code`,6, pad = "0")
+DAI_New$`Stock Code`<-as.character(DAI_New$`Stock Code`)
+```
+
+```{r}
+DAI1<-read_excel("调整后正常股票代码.xlsx")
+DAI1<-DAI1[,-(1:2)]
+```
+
+```{r}
+DAI1$预案公告日<-as.Date(DAI1$预案公告日,format='%Y-%m-%d')
+```
+
+```{r}
+date1<-read_excel("2014之前.xlsx")
+date2<-read_excel("2014-2017.xlsx")
+date3<-read_excel("2017-2020.xlsx")
+```
+
+```{r}
+date1<-date1[-(1:2),-(3:4)]
+date2<-date2[-(1:2),-(3:4)]
+date3<-date3[-(1:2),-(3:4)]
+```
+
+```{r}
+DAI_explicit<-DAI1
+DAI_explicit$预案公告日<-as.character(DAI_explicit$预案公告日)
+DAI_explicit$dateM10<-0
+DAI_explicit$dateM9<-0
+DAI_explicit$dateM8<-0
+DAI_explicit$dateM7<-0
+DAI_explicit$dateM6<-0
+DAI_explicit$dateM5<-0
+DAI_explicit$dateM4<-0
+DAI_explicit$dateM3<-0
+DAI_explicit$dateM2<-0
+DAI_explicit$dateM1<-0
+DAI_explicit$date0<-0
+DAI_explicit$date1<-0
+DAI_explicit$date2<-0
+DAI_explicit$date3<-0
+DAI_explicit$date4<-0
+DAI_explicit$date5<-0
+DAI_explicit$date6<-0
+DAI_explicit$date7<-0
+DAI_explicit$date8<-0
+DAI_explicit$date9<-0
+DAI_explicit$date10<-0
+```
+
+```{r}
+DAI_explicit$预案公告日<-as.Date(DAI_explicit$预案公告日)
+date1$Trddt<-as.Date(date1$Trddt)
+date2$Trddt<-as.Date(date2$Trddt)
+date3$Trddt<-as.Date(date3$Trddt)
+```
+
+```{r}
+DAI_explicit_1<-with(DAI_explicit,DAI_explicit[DAI_explicit$预案公告日>="2010-01-01"&DAI_explicit$预案公告日<="2013-12-31",])
+DAI_explicit_2<-with(DAI_explicit,DAI_explicit[DAI_explicit$预案公告日>="2014-01-01"&DAI_explicit$预案公告日<="2016-12-31",])
+DAI_explicit_3<-with(DAI_explicit,DAI_explicit[DAI_explicit$预案公告日>="2017-01-01"&DAI_explicit$预案公告日<="2019-12-31",])
+```
+
+```{r}
+DAI_explicit_1<-DAI_explicit_1[-104,]
+DAI_explicit_1<-DAI_explicit_1[-772,]
+```
+
+```{r}
+for (i in 1:831) {
+  temp<-with(date1,date1[date1$Stkcd==DAI_explicit_1[[2]][i],])
+  D<-which.min(abs(temp$Trddt-DAI_explicit_1[[7]][i]))
+  for (j in 30:50) {
+    DAI_explicit_1[[j]][i]<-temp[[3]][D+j-40]
+  }
+}
+```
+
+```{r}
+DAI_explicit_2<-DAI_explicit_2[-119,]
+DAI_explicit_2<-DAI_explicit_2[-155,]
+DAI_explicit_2<-DAI_explicit_2[-272,]
+DAI_explicit_2<-DAI_explicit_2[-356,]
+DAI_explicit_2<-DAI_explicit_2[-356,]
+DAI_explicit_2<-DAI_explicit_2[-382,]
+DAI_explicit_2<-DAI_explicit_2[-410,]
+DAI_explicit_2<-DAI_explicit_2[-450,]
+DAI_explicit_2<-DAI_explicit_2[-461,]
+DAI_explicit_2<-DAI_explicit_2[-462,]
+DAI_explicit_2<-DAI_explicit_2[-580,]
+DAI_explicit_2<-DAI_explicit_2[-580,]
+DAI_explicit_2<-DAI_explicit_2[-585,]
+DAI_explicit_2<-DAI_explicit_2[-589,]
+DAI_explicit_2<-DAI_explicit_2[-616,]
+DAI_explicit_2<-DAI_explicit_2[-616,]
+DAI_explicit_2<-DAI_explicit_2[-666,]
+DAI_explicit_2<-DAI_explicit_2[-669,]
+DAI_explicit_2<-DAI_explicit_2[-669,]
+DAI_explicit_2<-DAI_explicit_2[-709,]
+DAI_explicit_2<-DAI_explicit_2[-719,]
+DAI_explicit_2<-DAI_explicit_2[-723,]
+DAI_explicit_2<-DAI_explicit_2[-797,]
+DAI_explicit_2<-DAI_explicit_2[-942,]
+DAI_explicit_2<-DAI_explicit_2[-947,]
+DAI_explicit_2<-DAI_explicit_2[-947,]
+DAI_explicit_2<-DAI_explicit_2[-965,]
+DAI_explicit_2<-DAI_explicit_2[-965,]
+DAI_explicit_2<-DAI_explicit_2[-1015,]
+DAI_explicit_2<-DAI_explicit_2[-1015,]
+DAI_explicit_2<-DAI_explicit_2[-1015,]
+DAI_explicit_2<-DAI_explicit_2[-1043,]
+DAI_explicit_2<-DAI_explicit_2[-1048,]
+DAI_explicit_2<-DAI_explicit_2[-1048,]
+DAI_explicit_2<-DAI_explicit_2[-1098,]
+DAI_explicit_2<-DAI_explicit_2[-1098,]
+DAI_explicit_2<-DAI_explicit_2[-1213,]
+DAI_explicit_2<-DAI_explicit_2[-1217,]
+DAI_explicit_2<-DAI_explicit_2[-1217,]
+DAI_explicit_2<-DAI_explicit_2[-1230,]
+DAI_explicit_2<-DAI_explicit_2[-1231,]
+DAI_explicit_2<-DAI_explicit_2[-1450,]
+DAI_explicit_2<-DAI_explicit_2[-1522,]
+DAI_explicit_2<-DAI_explicit_2[-1611,]
+DAI_explicit_2<-DAI_explicit_2[-1682,]
+DAI_explicit_2<-DAI_explicit_2[-1709,]
+DAI_explicit_2<-DAI_explicit_2[-1823,]
+DAI_explicit_2<-DAI_explicit_2[-1823,]
+```
+
+```{r}
+for (i in 1:1981) {
+  temp<-with(date2,date2[date2$Stkcd==DAI_explicit_2[[2]][i],])
+  D<-which.min(abs(temp$Trddt-DAI_explicit_2[[7]][i]))
+  for (j in 30:50) {
+    DAI_explicit_2[[j]][i]<-temp[[3]][D+j-40]
+  }
+}
+```
+
+```{r}
+DAI_explicit_3<-DAI_explicit_3[-11,]
+DAI_explicit_3<-DAI_explicit_3[-29,]
+DAI_explicit_3<-DAI_explicit_3[-29,]
+DAI_explicit_3<-DAI_explicit_3[-33,]
+DAI_explicit_3<-DAI_explicit_3[-38,]
+DAI_explicit_3<-DAI_explicit_3[-38,]
+DAI_explicit_3<-DAI_explicit_3[-52,]
+DAI_explicit_3<-DAI_explicit_3[-52,]
+DAI_explicit_3<-DAI_explicit_3[-52,]
+DAI_explicit_3<-DAI_explicit_3[-52,]
+DAI_explicit_3<-DAI_explicit_3[-52,]
+DAI_explicit_3<-DAI_explicit_3[-93,]
+DAI_explicit_3<-DAI_explicit_3[-93,]
+DAI_explicit_3<-DAI_explicit_3[-114,]
+DAI_explicit_3<-DAI_explicit_3[-126,]
+DAI_explicit_3<-DAI_explicit_3[-126,]
+DAI_explicit_3<-DAI_explicit_3[-146,]
+DAI_explicit_3<-DAI_explicit_3[-146,]
+DAI_explicit_3<-DAI_explicit_3[-150,]
+DAI_explicit_3<-DAI_explicit_3[-165,]
+DAI_explicit_3<-DAI_explicit_3[-165,]
+DAI_explicit_3<-DAI_explicit_3[-189,]
+DAI_explicit_3<-DAI_explicit_3[-189,]
+DAI_explicit_3<-DAI_explicit_3[-216,]
+DAI_explicit_3<-DAI_explicit_3[-216,]
+DAI_explicit_3<-DAI_explicit_3[-232,]
+DAI_explicit_3<-DAI_explicit_3[-232,]
+DAI_explicit_3<-DAI_explicit_3[-250,]
+DAI_explicit_3<-DAI_explicit_3[-252,]
+DAI_explicit_3<-DAI_explicit_3[-262,]
+DAI_explicit_3<-DAI_explicit_3[-262,]
+DAI_explicit_3<-DAI_explicit_3[-266,]
+DAI_explicit_3<-DAI_explicit_3[-274,]
+DAI_explicit_3<-DAI_explicit_3[-285,]
+DAI_explicit_3<-DAI_explicit_3[-299,]
+DAI_explicit_3<-DAI_explicit_3[-299,]
+DAI_explicit_3<-DAI_explicit_3[-316,]
+DAI_explicit_3<-DAI_explicit_3[-316,]
+DAI_explicit_3<-DAI_explicit_3[-337,]
+DAI_explicit_3<-DAI_explicit_3[-337,]
+DAI_explicit_3<-DAI_explicit_3[-344,]
+DAI_explicit_3<-DAI_explicit_3[-344,]
+DAI_explicit_3<-DAI_explicit_3[-344,]
+DAI_explicit_3<-DAI_explicit_3[-344,]
+DAI_explicit_3<-DAI_explicit_3[-357,]
+DAI_explicit_3<-DAI_explicit_3[-357,]
+DAI_explicit_3<-DAI_explicit_3[-363,]
+DAI_explicit_3<-DAI_explicit_3[-363,]
+DAI_explicit_3<-DAI_explicit_3[-372,]
+DAI_explicit_3<-DAI_explicit_3[-372,]
+DAI_explicit_3<-DAI_explicit_3[-379,]
+DAI_explicit_3<-DAI_explicit_3[-379,]
+DAI_explicit_3<-DAI_explicit_3[-432,]
+DAI_explicit_3<-DAI_explicit_3[-432,]
+DAI_explicit_3<-DAI_explicit_3[-435,]
+DAI_explicit_3<-DAI_explicit_3[-435,]
+DAI_explicit_3<-DAI_explicit_3[-435,]
+DAI_explicit_3<-DAI_explicit_3[-437,]
+DAI_explicit_3<-DAI_explicit_3[-452,]
+DAI_explicit_3<-DAI_explicit_3[-452,]
+DAI_explicit_3<-DAI_explicit_3[-494,]
+DAI_explicit_3<-DAI_explicit_3[-522,]
+DAI_explicit_3<-DAI_explicit_3[-522,]
+DAI_explicit_3<-DAI_explicit_3[-535,]
+DAI_explicit_3<-DAI_explicit_3[-535,]
+DAI_explicit_3<-DAI_explicit_3[-540,]
+DAI_explicit_3<-DAI_explicit_3[-540,]
+DAI_explicit_3<-DAI_explicit_3[-565,]
+DAI_explicit_3<-DAI_explicit_3[-588,]
+DAI_explicit_3<-DAI_explicit_3[-607,]
+DAI_explicit_3<-DAI_explicit_3[-607,]
+```
+
+```{r}
+for (i in 1:645) {
+  temp<-with(date3,date3[date3$Stkcd==DAI_explicit_3[[2]][i],])
+  D<-which.min(abs(temp$Trddt-DAI_explicit_3[[7]][i]))
+  for (j in 30:50) {
+    DAI_explicit_3[[j]][i]<-temp[[3]][D+j-40]
+  }
+}
+```
+
+```{r}
+DAI_All<-rbind(DAI_explicit_1,DAI_explicit_2,DAI_explicit_3)
+```
+
+```{r}
+DAI_All$beta<-0
+DAI_All<-DAI_All[-3217,]
+DAI_All<-DAI_All[-3457,]
+DAI_All<-DAI_All[-3457,]
+```
+
+```{r}
+All_Beta<-read_excel("EVA_BETA.xlsx")
+All_Beta<-All_Beta[-(1:2),]
+All_Beta$EndDate<-as.Date(All_Beta$EndDate)
+```
+
+```{r}
+for (i in 1:3456) {
+  temp2<-with(All_Beta,All_Beta[All_Beta$Symbol==DAI_All[[2]][i],])
+  D<-which.min(abs(temp2$EndDate-DAI_All[[7]][i]))
+  DAI_All[[51]][i]<-temp2[[3]][D]
+}
+```
+
+```{r}
+All_Rm<-read_excel("上证.xlsx")
+All_Rm<-All_Rm[-(1:2),]
+All_Rm$Idxtrd01<-as.Date(All_Rm$Idxtrd01)
+All_Rm$Idxtrd08<-as.numeric(All_Rm$Idxtrd08)/100
+DAI_All$beta<-as.numeric(DAI_All$beta)
+
+```
+
+```{r}
+for (i in 30:50) {
+  DAI_All[[i]]<-as.numeric(DAI_All[[i]])
+}
+```
+
+```{r}
+for (i in 1:3456) {
+  Y<-which.min(abs(All_Rm$Idxtrd01-DAI_All[[7]][i]))
+  for (j in 0:20) {
+    Rn<-0.000061+DAI_All[[51]][i]*(All_Rm[[3]][Y+j-10]-0.000061)
+    DAI_All[[30+j]][i]<-DAI_All[[30+j]][i]-Rn
+  }
+}
+```
+
+```{r}
+write.csv(DAI_All,"2010~2019new.csv")
+```
+

@@ -1,0 +1,345 @@
+---
+title: "FIN3080HW"
+author: "119020071"
+date: "2021.04.09"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+  word_document: default
+classoption: hyperref,
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(e1071)
+library(dplyr)
+```
+
+## Analysis of CSI 300 Index daily
+
+```{r}
+table1 <- read.csv("Stock Market Data/沪深300 06-11 daily/IDX_Idxtrd.csv")
+table2 <- read.csv("Stock Market Data/沪深300 11-16 daily/IDX_Idxtrd.csv")
+table3 <- read.csv("Stock Market Data/沪深300   16-21 daily/IDX_Idxtrd.csv")
+Tridaily<-rbind(table1,table2,table3)
+```
+
+```{r}
+funss<-function(x) 1/sqrt(2*pi)*exp(-1/2*x^2)
+```
+
+```{r}
+ggplot(data=Tridaily,mapping=aes(x=Idxtrd08))+
+  geom_histogram(aes(y=..density..),binwidth=.05,color="light blue")+
+  geom_density(colour="yellow")+
+  stat_function(fun=funss,geom="line",colour="red")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI 300 Index (daily) compared with Gaussian Distribution")
+```
+
+```{r}
+skewness(Tridaily$Idxtrd08)
+kurtosis(Tridaily$Idxtrd08)
+```
+
+```{r}
+plot(Tridaily$Idxtrd08,pnorm(Tridaily$Idxtrd08),ylab="cdf",main="CDF of CSI 300 Index (daily)")
+```
+
+```{r}
+qqnorm(Tridaily$Idxtrd08,main="QQplot of CSI 300 Index (daily)")
+qqline(Tridaily$Idxtrd08,col=2)
+```
+
+```{r}
+shapiro.test(Tridaily$Idxtrd08)
+```
+
+## t-distribution
+
+```{r}
+funt<-function(x){
+  dt(x,df=4)
+}
+```
+
+```{r}
+ggplot(data=Tridaily,mapping=aes(x=Idxtrd08))+
+  geom_histogram(aes(y=..density..),binwidth=.05,color="light blue")+
+  geom_density(colour="yellow")+
+  stat_function(fun=funt,geom="line",colour="red")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI 300 Index (daily) compared with t-Distribution")
+```
+
+```{r}
+ks.test(Tridaily$Idxtrd08,pt,df=4)
+```
+
+```{r}
+mean(Tridaily$Idxtrd08)
+Laplace<-function(x) {
+  lamda<-(1/length(Tridaily$Idxtrd08))*sum(abs(Tridaily$Idxtrd08-mean(Tridaily$Idxtrd08)))
+  1/(2*lamda)*exp(-abs(x-mean(Tridaily$Idxtrd08))/lamda)
+}
+```
+
+```{r}
+ggplot(data=Tridaily,mapping=aes(x=Idxtrd08))+
+  geom_histogram(aes(y=..density..),binwidth=.05,color="light blue")+
+  geom_density(colour="yellow")+
+  stat_function(fun=Laplace,geom="line",colour="red")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI 300 Index (daily) compared with Laplace Distribution")
+```
+
+## Analysis of CSI Smallcap 500 Index daily
+
+```{r}
+table4<-read.csv("Stock Market Data/中小盘    06-11 daily/IDX_Idxtrd.csv")
+table5<-read.csv("Stock Market Data/中小盘   11-16 daily/IDX_Idxtrd.csv")
+table6<-read.csv("Stock Market Data/中小盘   16-21 daily/IDX_Idxtrd.csv")
+Fifdaily<-rbind(table4,table5,table6)
+Fifdaily<-na.omit(Fifdaily)
+```
+
+```{r}
+funss<-function(x) 1/sqrt(2*pi)*exp(-1/2*x^2)
+```
+
+```{r}
+ggplot(data=Fifdaily,mapping=aes(x=Idxtrd08))+
+  geom_histogram(aes(y=..density..),binwidth=.05,color="light blue")+
+  geom_density(colour="yellow")+
+  stat_function(fun=funss,geom="line",colour="red")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI Smallcap 500 Index (daily) compared with Gaussian Distribution")
+```
+
+```{r}
+skewness(Fifdaily$Idxtrd08)
+kurtosis(Fifdaily$Idxtrd08)
+```
+
+```{r}
+plot(Fifdaily$Idxtrd08,pnorm(Fifdaily$Idxtrd08),ylab="cdf",main="CDF of CSI Smallcap 500 Index
+     (daily)")
+```
+
+```{r}
+qqnorm(Fifdaily$Idxtrd08,main="QQplot of CSI Smallcap 500 Index (daily)")
+qqline(Fifdaily$Idxtrd08,col=2)
+```
+
+```{r}
+shapiro.test(Fifdaily$Idxtrd08)
+```
+
+## t-distribution
+
+```{r}
+funt<-function(x){
+  dt(x,df=0.7)
+}
+```
+
+```{r}
+ggplot(data=Fifdaily,mapping=aes(x=Idxtrd08))+
+  geom_histogram(aes(y=..density..),binwidth=.05,color="light blue")+
+  geom_density(colour="yellow")+
+  stat_function(fun=funt,geom="line",colour="red")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI Smallcap 500 Index (daily) compared with t-Distribution")
+```
+
+```{r}
+ks.test(Fifdaily$Idxtrd08,pt,df=4)
+```
+
+```{r}
+mean(Fifdaily$Idxtrd08)
+Laplace<-function(x) {
+  lamda<-(1/length(Fifdaily$Idxtrd08))*sum(abs(Fifdaily$Idxtrd08-mean(Fifdaily$Idxtrd08)))
+  1/(2*lamda)*exp(-abs(x-mean(Fifdaily$Idxtrd08))/lamda)
+}
+```
+
+```{r}
+ggplot(data=Fifdaily,mapping=aes(x=Idxtrd08))+
+  geom_histogram(aes(y=..density..),binwidth=.05,color="light blue")+
+  geom_density(colour="yellow")+
+  stat_function(fun=Laplace,geom="line",colour="red")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI Smallcap 500 Index (daily) compared with Laplace Distribution")
+```
+
+## Analysis of CSI 300 Index monthly
+
+```{r}
+Trimonthly <- read_excel("Stock Market Data/沪深300 01-21 monthly/IDX_Idxtrdmth.xlsx")
+Trimonthly<-rename(Trimonthly,Idxtrd08=Idxrtn)
+Trimonthly<-Trimonthly[-(1:2),]
+Trimonthly$Idxtrd08<-as.numeric(Trimonthly$Idxtrd08)
+```
+
+```{r}
+funss<-function(x) 1/sqrt(2*pi)*exp(-1/2*x^2)
+```
+
+```{r}
+ggplot(data=Trimonthly,mapping=aes(x=Idxtrd08))+
+  geom_histogram(binwidth=.005,color="light blue")+
+  geom_density(colour="yellow")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI 300 Index (monthly) compared with Gaussian Distribution")
+```
+
+```{r}
+skewness(Trimonthly$Idxtrd08)
+kurtosis(Trimonthly$Idxtrd08)
+```
+
+```{r}
+plot(Trimonthly$Idxtrd08,pnorm(Trimonthly$Idxtrd08),ylab="cdf",main="CDF of CSI 300 Index (monthly)")
+```
+
+```{r}
+qqnorm(Trimonthly$Idxtrd08,main="QQplot of CSI 300 Index (monthly)")
+qqline(Trimonthly$Idxtrd08,col=2)
+```
+
+```{r}
+shapiro.test(Trimonthly$Idxtrd08)
+```
+
+## t-distribution
+
+```{r}
+funt<-function(x){
+  dt(x,df=4)
+}
+```
+
+```{r}
+ggplot(data=Trimonthly,mapping=aes(x=Idxtrd08))+
+  geom_histogram(binwidth=.005,color="light blue")+
+  geom_density(colour="yellow")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI 300 Index (monthly) compared with t-Distribution")
+```
+
+```{r}
+ks.test(Trimonthly$Idxtrd08,pt,df=4)
+```
+
+```{r}
+mean(Trimonthly$Idxtrd08)
+Laplace<-function(x) {
+  lamda<-(1/length(Trimonthly$Idxtrd08))*sum(abs(Trimonthly$Idxtrd08-mean(Trimonthly$Idxtrd08)))
+  1/(2*lamda)*exp(-abs(x-mean(Trimonthly$Idxtrd08))/lamda)
+}
+```
+
+```{r}
+ggplot(data=Trimonthly,mapping=aes(x=Idxtrd08))+
+  geom_histogram(binwidth=.005,color="light blue")+
+  geom_density(colour="yellow")+
+  stat_function(fun=Laplace,geom="line",colour="red")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI 300 Index (monthly) compared with Laplace Distribution")
+```
+
+## Analysis of Smallcap 500 Index monthly
+
+```{r}
+Fifmonthly <- read_excel("Stock Market Data/中小盘500  01-21  monthly/IDX_Idxtrdmth.xlsx")
+Fifmonthly<-rename(Fifmonthly,Idxtrd08=Idxrtn)
+Fifmonthly<-Fifmonthly[-(1:2),]
+Fifmonthly$Idxtrd08<-as.numeric(Fifmonthly$Idxtrd08)
+```
+
+```{r}
+funss<-function(x) 1/sqrt(2*pi)*exp(-1/2*x^2)
+```
+
+```{r}
+ggplot(data=Fifmonthly,mapping=aes(x=Idxtrd08))+
+  geom_histogram(binwidth=.005,color="light blue")+
+  geom_density(colour="yellow")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI Smallcap 500 Index (monthly) compared with Gaussian Distribution")
+```
+
+```{r}
+skewness(Fifmonthly$Idxtrd08)
+kurtosis(Fifmonthly$Idxtrd08)
+```
+
+```{r}
+plot(Fifmonthly$Idxtrd08,pnorm(Fifmonthly$Idxtrd08),ylab="cdf",main="CDF of CSI Smallcap 500 Index (monthly)")
+```
+
+```{r}
+qqnorm(Fifmonthly$Idxtrd08,main="QQplot of CSI Smallcap 500 Index (monthly)")
+qqline(Fifmonthly$Idxtrd08,col=2)
+```
+
+```{r}
+shapiro.test(Fifmonthly$Idxtrd08)
+```
+
+## t-distribution
+
+```{r}
+funt<-function(x){
+  dt(x,df=4)
+}
+```
+
+```{r}
+ggplot(data=Fifmonthly,mapping=aes(x=Idxtrd08))+
+  geom_histogram(binwidth=.005,color="light blue")+
+  geom_density(colour="yellow")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI Smallcap 500 Index (monthly) compared with t-Distribution")
+```
+
+```{r}
+ks.test(Fifmonthly$Idxtrd08,pt,df=4)
+```
+
+```{r}
+mean(Fifmonthly$Idxtrd08)
+Laplace<-function(x) {
+  lamda<-(1/length(Fifmonthly$Idxtrd08))*sum(abs(Fifmonthly$Idxtrd08-mean(Fifmonthly$Idxtrd08)))
+  1/(2*lamda)*exp(-abs(x-mean(Fifmonthly$Idxtrd08))/lamda)
+}
+```
+
+```{r}
+ggplot(data=Fifmonthly,mapping=aes(x=Idxtrd08))+
+  geom_histogram(binwidth=.005,color="light blue")+
+  geom_density(colour="yellow")+
+  stat_function(fun=Laplace,geom="line",colour="red")+
+  geom_vline(aes(xintercept=mean(Idxtrd08)),  
+               color="red", linetype="dashed", size=1)+
+  labs(title="Distribution of CSI Smallcap 500 Index (monthly) compared with Laplace Distribution")
+```

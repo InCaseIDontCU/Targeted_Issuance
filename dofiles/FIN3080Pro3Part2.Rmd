@@ -1,0 +1,168 @@
+---
+title: "Assignment 1 "
+author: "YOUR NAME"
+date: "DATE"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+  word_document: default
+classoption: hyperref,
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+OI1<-read.csv('10~14OI.csv')
+OI2<-read.csv('15~19OI.csv')
+OI<-rbind(OI1,OI2)
+OI<-OI[,-1]
+OI$Idxtrd01<-as.Date(OI$Idxtrd01)
+```
+
+```{r}
+library(readxl)
+library(dplyr)
+library(stringr)
+ARF<- read_excel("处理好数据.xlsx")
+```
+
+```{r}
+ARF<-ARF[,-(53:54)]
+ARF<-ARF[,-(1:2)]
+ARF$预案公告日<-as.Date(ARF$预案公告日)
+```
+
+```{r}
+ARF$`Stock Code`<-as.character(ARF$`Stock Code`)
+ARF$`Stock Code`<-str_pad(ARF$`Stock Code`,6,side='left','0')
+```
+
+```{r}
+ARF$Index<-0
+for (i in 1:3450) {
+  M<-which.min(abs(OI$Idxtrd01-ARF[[7]][i]))
+  ARF[[51]][i]<-OI[[2]][M]
+}
+```
+
+```{r}
+Portfolio1<-with(ARF,ARF[ARF$Index<=2000,])
+Portfolio2<-with(ARF,ARF[ARF$Index>2000&ARF$Index<=2500,])
+Portfolio3<-with(ARF,ARF[ARF$Index>2500&ARF$Index<=3000,])
+Portfolio4<-with(ARF,ARF[ARF$Index>3000&ARF$Index<=3500,])
+Portfolio5<-with(ARF,ARF[ARF$Index>3500&ARF$Index<=4000,])
+Portfolio6<-with(ARF,ARF[ARF$Index>4000&ARF$Index<=4500,])
+Portfolio7<-with(ARF,ARF[ARF$Index>4500&ARF$Index<=5000,])
+Portfolio8<-with(ARF,ARF[ARF$Index>5000,])
+```
+
+```{r}
+RWE<-data.frame(Portfolio=c('Portfolio1','Portfolio2','Portfolio3','Portfolio4','Portfolio5','Portfolio6','Portfolio7','Portfolio8'),LowerIndex=c(1500,2000,2500,3000,3500,4000,4500,5000),UpperIndex=c(2000,2500,3000,3500,4000,4500,5000,5500),DateM10=NA,DateM9=NA,DateM8=NA,DateM7=NA,DateM6=NA,DateM5=NA,DateM4=NA,DateM3=NA,DateM2=NA,DateM1=NA,Date0=NA,Date1=NA,Date2=NA,Date3=NA,Date4=NA,Date5=NA,Date6=NA,Date7=NA,Date8=NA,Date9=NA,Date10=NA)
+```
+
+```{r}
+for (i in 30:50) {
+  RWE[1,][,i-26]<-mean(Portfolio1[[i]])
+}
+for (i in 30:50) {
+  RWE[2,][,i-26]<-mean(Portfolio2[[i]])
+}
+for (i in 30:50) {
+  RWE[3,][,i-26]<-mean(Portfolio3[[i]])
+}
+for (i in 30:50) {
+  RWE[4,][,i-26]<-mean(Portfolio4[[i]])
+}
+for (i in 30:50) {
+  RWE[5,][,i-26]<-mean(Portfolio5[[i]])
+}
+for (i in 30:50) {
+  RWE[6,][,i-26]<-mean(Portfolio6[[i]])
+}
+for (i in 30:50) {
+  RWE[7,][,i-26]<-mean(Portfolio7[[i]])
+}
+for (i in 30:50) {
+  RWE[8,][,i-26]<-mean(Portfolio8[[i]])
+}
+```
+
+```{r}
+RWE_New<-data.frame(Portfolio=c('Portfolio1','Portfolio2','Portfolio3','Portfolio4','Portfolio5','Portfolio6','Portfolio7','Portfolio8'),LowerIndex=c(1500,2000,2500,3000,3500,4000,4500,5000),UpperIndex=c(2000,2500,3000,3500,4000,4500,5000,5500),平均值=0,最大值=0,最小值=0,增发加数=0,盈利加数=0,正收益比例=0)
+```
+
+```{r}
+Alexia<-list(Portfolio1,Portfolio2,Portfolio3,Portfolio4,Portfolio5,Portfolio6,Portfolio7,Portfolio8)
+```
+
+```{r}
+for (i in 1:8) {
+  RWE_New[[4]][i]<-mean(Alexia[[i]]$date10)
+  RWE_New[[5]][i]<-max(Alexia[[i]]$date10)
+  RWE_New[[6]][i]<-min(Alexia[[i]]$date10)
+  RWE_New[[7]][i]<-length(Alexia[[i]]$date10)
+  RWE_New[[8]][i]<-length(Alexia[[i]]$date10[Alexia[[i]]$date10>0])
+  RWE_New[[9]][i]<-length(Alexia[[i]]$date10[Alexia[[i]]$date10>0])/length(Alexia[[i]]$date10)
+}  
+```
+
+```{r}
+write.csv(RWE_New,"大盘表格.csv")
+```
+
+```{r}
+FND1<-read_excel("1TRD_Dalyr.xlsx")
+FND2<-read_excel("2TRD_Dalyr.xlsx")
+FND3<-read_excel("3TRD_Dalyr.xlsx")
+FND4<-read_excel("4TRD_Dalyr.xlsx")
+FDN<-rbind(FND1,FND2,FND3,FND4)
+FDN<-FDN[-(1:2),]
+```
+
+```{r}
+FDN<-FDN[-(1:2),]
+FDN$Trddt<-as.Date(FDN$Trddt)
+FDN$Clsprc<-as.numeric(FDN$Clsprc)
+FDN$Dsmvosd<-as.numeric(FDN$Dsmvosd)
+FDN<-na.omit(FDN)
+FDN$Trddt<-as.Date(FDN$Trddt)
+FDN$Clsprc<-as.numeric(FDN$Clsprc)
+FDN$Dsmvosd<-as.numeric(FDN$Dsmvosd)
+```
+
+```{r}
+ARF$Total_Value<-0
+```
+
+```{r}
+for (i in 1:3450) {
+  tp<-with(FDN,FDN[FDN$Stkcd==ARF[[2]][i],])
+  K<-which.min(abs(tp$Trddt-ARF[[7]][i]))
+  ARF[[52]][i]<-tp[[4]][K]
+}
+```
+
+```{r}
+ARF$Previous_Close<-0
+```
+
+```{r}
+for (i in 1:3450) {
+  tp2<-with(FDN,FDN[FDN$Stkcd==ARF[[2]][i],])
+  K<-which.min(abs(tp2$Trddt-ARF[[7]][i]))
+  if (K>1) {
+    ARF[[53]][i]<-tp2[[3]][K-1]
+  }
+  else (
+    ARF[[53]][i]<-tp2[[3]][K]
+  )
+}
+```
+
+```{r}
+write.csv(ARF,'2010~2019Final.csv')
+```

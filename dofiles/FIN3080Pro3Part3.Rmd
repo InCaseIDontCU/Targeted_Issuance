@@ -1,0 +1,208 @@
+---
+title: "Assignment 1 "
+author: "YOUR NAME"
+date: "DATE"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+  word_document: default
+classoption: hyperref,
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(stringr)
+library(dplyr)
+```
+
+```{r}
+table1<-read.csv('2010~2019Final.csv')
+```
+
+```{r}
+table1$Total_Value<-1000*table1$Total_Value
+```
+
+```{r}
+table1$Stock.Code<-as.character(table1$Stock.Code)
+table1$Stock.Code<-str_pad(table1$Stock.Code,6,side=c('left'),pad=0)
+```
+
+```{r}
+table1$Value_ratio<-table1$实际募集资金/table1$Total_Value
+table1$Close_ratio<-table1$预计价格下限/table1$Previous_Close
+```
+
+```{r}
+table2<-data.frame(table1$Stock.Code,table1$ShortName,table1$预计价格上限,table1$预计价格下限,table1$实际发行价格,table1$实际募集资金,table1$Close_ratio,table1$Value_ratio,table1$dateM10,table1$dateM9,table1$dateM8,table1$dateM7,table1$dateM6,table1$dateM5,table1$dateM4,table1$dateM3,table1$dateM2,table1$dateM1,table1$date0,table1$date1,table1$date2,table1$date3,table1$date4,table1$date5,table1$date6,table1$date7,table1$date8,table1$date9,table1$date10,table1$Previous_Close)
+```
+
+```{r}
+## 发行规模占流通市值比例
+table3<-arrange(table2,table2$table1.Value_ratio)
+Portfolio1<-with(table3,table3[table3$table1.Value_ratio<=0.1,])
+Portfolio2<-with(table3,table3[table3$table1.Value_ratio>0.1&table3$table1.Value_ratio<=0.3,])
+Portfolio3<-with(table3,table3[table3$table1.Value_ratio>0.3&table3$table1.Value_ratio<=0.5,])
+Portfolio4<-with(table3,table3[table3$table1.Value_ratio>0.5&table3$table1.Value_ratio<=0.8,])
+Portfolio5<-with(table3,table3[table3$table1.Value_ratio>0.8&table3$table1.Value_ratio<=1,])
+Portfolio6<-with(table3,table3[table3$table1.Value_ratio>1,])
+```
+
+```{r}
+Value<-data.frame(Portfolio=c("Portfolio1","Portfolio2","Portfolio3","Portfolio4","Portfolio5","Portfolio6"),LowerValueRatio=c(NA,0.1,0.3,0.5,0.8,1),UpperValueRatio=c(0.1,0.3,0.5,0.8,1,NA),Average_return_M10=0,Average_return_M9=0,Average_return_M8=0,Average_return_M7=0,Average_return_M6=0,Average_return_M5=0,Average_return_M4=0,Average_return_M3=0,Average_return_M2=0,Average_return_M1=0,Average_return_0=0,Average_return_1=0,Average_return_2=0,Average_return_3=0,Average_return_4=0,Average_return_5=0,Average_return_6=0,Average_return_7=0,Average_return_8=0,Average_return_9=0,Average_return_10=0)
+```
+
+```{r}
+for (i in 9:29) {
+  Value[[i-5]][1]<-mean(Portfolio1[[i]])
+}
+for (i in 9:29) {
+  Value[[i-5]][2]<-mean(Portfolio2[[i]])
+}
+for (i in 9:29) {
+  Value[[i-5]][3]<-mean(Portfolio3[[i]])
+}
+for (i in 9:29) {
+  Value[[i-5]][4]<-mean(Portfolio4[[i]])
+}
+for (i in 9:29) {
+  Value[[i-5]][5]<-mean(Portfolio5[[i]])
+}
+for (i in 9:29) {
+  Value[[i-5]][6]<-mean(Portfolio6[[i]])
+}
+```
+
+```{r}
+write.csv(Value,"发行规模占流通市值比例.csv")
+```
+
+```{r}
+Value_New<-data.frame(Portfolio=c("Portfolio1","Portfolio2","Portfolio3","Portfolio4","Portfolio5","Portfolio6"),LowerValueRatio=c(NA,0.1,0.3,0.5,0.8,1),UpperValueRatio=c(0.1,0.3,0.5,0.8,1,NA),平均值=0,最大值=0,最小值=0,增发加数=0,盈利加数=0,正收益比例=0)
+```
+
+```{r}
+Zhou<-list(Portfolio1,Portfolio2,Portfolio3,Portfolio4,Portfolio5,Portfolio6)
+```
+
+```{r}
+for (i in 1:6) {
+  Value_New[[4]][i]<-mean(Zhou[[i]]$table1.date10)
+  Value_New[[5]][i]<-max(Zhou[[i]]$table1.date10)
+  Value_New[[6]][i]<-min(Zhou[[i]]$table1.date10)
+  Value_New[[7]][i]<-length(Zhou[[i]]$table1.date10)
+  Value_New[[8]][i]<-length(Zhou[[i]]$table1.date10[Zhou[[i]]$table1.date10>0])
+  Value_New[[9]][i]<-length(Zhou[[i]]$table1.date10[Zhou[[i]]$table1.date10>0])/length(Zhou[[i]]$table1.date10)
+}
+```
+
+```{r}
+write.csv(Value_New,"Value.csv")
+```
+
+```{r}
+table7<-na.omit(table2)
+table7$table1.Close_ratio<-(table7$table1.预计价格上限+table7$table1.预计价格下限)/(2*table7$table1.Previous_Close)
+```
+
+```{r}
+## 实际发行价格与公告前一天收盘价比例
+table4<-arrange(table7,table7$table1.Close_ratio)
+table4<-with(table4,table4[table4$table1.实际发行价格!=100,])
+Portfolio1<-with(table4,table4[table4$table1.Close_ratio<=0.5,])
+Portfolio2<-with(table4,table4[table4$table1.Close_ratio>0.5&table4$table1.Close_ratio<=0.7,])
+Portfolio3<-with(table4,table4[table4$table1.Close_ratio>0.7&table4$table1.Close_ratio<=0.85,])
+Portfolio4<-with(table4,table4[table4$table1.Close_ratio>0.85&table4$table1.Close_ratio<=1,])
+Portfolio5<-with(table4,table4[table4$table1.Close_ratio>1&table4$table1.Close_ratio<=1.2,])
+Portfolio6<-with(table4,table4[table4$table1.Close_ratio>1.2,])
+```
+
+```{r}
+Close<-data.frame(Portfolio=c("Portfolio1","Portfolio2","Portfolio3","Portfolio4","Portfolio5","Portfolio6"),LowerValueRatio=c(NA,0.5,0.7,0.85,1,1.2),UpperValueRatio=c(0.5,0.7,0.85,1,1.2,NA),Average_return_M10=0,Average_return_M9=0,Average_return_M8=0,Average_return_M7=0,Average_return_M6=0,Average_return_M5=0,Average_return_M4=0,Average_return_M3=0,Average_return_M2=0,Average_return_M1=0,Average_return_0=0,Average_return_1=0,Average_return_2=0,Average_return_3=0,Average_return_4=0,Average_return_5=0,Average_return_6=0,Average_return_7=0,Average_return_8=0,Average_return_9=0,Average_return_10=0)
+```
+
+```{r}
+for (i in (9:29)) {
+  Close[[i-5]][1]<-mean(Portfolio1[[i]])
+}
+for (i in (9:29)) {
+  Close[[i-5]][2]<-mean(Portfolio2[[i]])
+}
+for (i in (9:29)) {
+  Close[[i-5]][3]<-mean(Portfolio3[[i]])
+}
+for (i in (9:29)) {
+  Close[[i-5]][4]<-mean(Portfolio4[[i]])
+}
+for (i in (9:29)) {
+  Close[[i-5]][5]<-mean(Portfolio5[[i]])
+}
+for (i in (9:29)) {
+  Close[[i-5]][6]<-mean(Portfolio6[[i]])
+}
+```
+
+```{r}
+write.csv(Close,"实际发行价格与公告前一天收盘价比例.csv")
+```
+
+```{r}
+Close_New<-data.frame(Portfolio=c("Portfolio1","Portfolio2","Portfolio3","Portfolio4","Portfolio5","Portfolio6"),LowerValueRatio=c(NA,0.5,0.7,0.85,1,1.2),UpperValueRatio=c(0.5,0.7,0.85,1,1.2,NA),平均值=0,最大值=0,最小值=0,增发加数=0,盈利加数=0,正收益比例=0)
+```
+
+```{r}
+Hanyu<-list(Portfolio1,Portfolio2,Portfolio3,Portfolio4,Portfolio5,Portfolio6)
+```
+
+```{r}
+for (i in 1:6) {
+  Close_New[[4]][i]<-mean(Hanyu[[i]]$table1.date10)
+  Close_New[[5]][i]<-max(Hanyu[[i]]$table1.date10)
+  Close_New[[6]][i]<-min(Hanyu[[i]]$table1.date10)
+  Close_New[[7]][i]<-length(Hanyu[[i]]$table1.date10)
+  Close_New[[8]][i]<-length(Hanyu[[i]]$table1.date10[Hanyu[[i]]$table1.date10>0])
+  Close_New[[9]][i]<-length(Hanyu[[i]]$table1.date10[Hanyu[[i]]$table1.date10>0])/length(Hanyu[[i]]$table1.date10)
+}
+```
+
+```{r}
+write.csv(Close_New,"Close.csv")
+```
+
+```{r}
+## 实际发行价格和预期价格上限/下限
+table5<-na.omit(table2)
+table5<-with(table5,table5[table5$table1.实际发行价格!=100,])
+```
+
+```{r}
+Portfolio1<-with(table5,table5[table5$table1.实际发行价格>0.8*table5$table1.预计价格上限,])
+Portfolio2<-with(table5,table5[table5$table1.实际发行价格<0.8*table5$table1.预计价格下限,])
+Portfolio3<-with(table5,table5[table5$table1.实际发行价格>=0.8*table5$table1.预计价格下限&table5$table1.实际发行价格<=1.2*table5$table1.预计价格上限,])
+```
+
+```{r}
+Leverage<-data.frame(Portfolio=c("Portfolio1","Portfolio2","Portfolio3"),Interval=c("实际发行价格高于预计价格上限的80%","实际发行价格低于预计价格下限的120%","实际发行价格位于预计价格上限和预计价格下限之间"),Average_return_M10=0,Average_return_M9=0,Average_return_M8=0,Average_return_M7=0,Average_return_M6=0,Average_return_M5=0,Average_return_M4=0,Average_return_M3=0,Average_return_M2=0,Average_return_M1=0,Average_return_0=0,Average_return_1=0,Average_return_2=0,Average_return_3=0,Average_return_4=0,Average_return_5=0,Average_return_6=0,Average_return_7=0,Average_return_8=0,Average_return_9=0,Average_return_10=0)
+```
+
+```{r}
+for (i in 9:29) {
+  Leverage[[i-6]][1]<-mean(Portfolio1[[i]])
+}
+for (i in 9:29) {
+  Leverage[[i-6]][2]<-mean(Portfolio2[[i]])
+}
+for (i in 9:29) {
+  Leverage[[i-6]][3]<-mean(Portfolio3[[i]])
+}
+```
+
+```{r}
+write.csv(Leverage,"实际价格和预期价格上下限比较.csv")
+```
+
